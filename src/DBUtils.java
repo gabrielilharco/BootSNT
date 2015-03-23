@@ -4,7 +4,7 @@ public class DBUtils {
 	
 	public static Connection connect () {
 		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
+			Class.forName("com.mysql.jdbc.Driver");
 			String url = "jdbc:mysql://localhost:3306/mysql";
 			String user = "root";
 			String password = "root";
