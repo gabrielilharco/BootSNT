@@ -1,18 +1,28 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Map;
 
 public class Manager {
 	
-	public static void main(String[] args) {
-		try {
-			ArrayList<Hyperlink> hyperlinks = DBHyperlink.selectComplete();
-			for (int i = 0; i < hyperlinks.size(); i++) {
-				System.out.println(hyperlinks.get(i).id + " " + hyperlinks.get(i).comments.size());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+	public static MainWindow mainWindow;
+	public static EditWindow editWindow;
+	
+	public static void process(String button) {
+		switch(button) {
+		case "Add new": editWindow.showWindow();
+						mainWindow.hideWindow();						
+						break;
+		case "Back"   : mainWindow.showWindow();
+						editWindow.hideWindow();
+						break;
+		default: ;
 		}
+	}
+	
+	public static void main(String[] args) {
+
+		ButtonListener buttonListener = new ButtonListener();
+		mainWindow = new MainWindow(buttonListener);
+		editWindow = new EditWindow(buttonListener);
+		
+		mainWindow.showWindow();
+		
 	}
 }
