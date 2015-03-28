@@ -1,11 +1,31 @@
-import java.util.List;
-import java.util.Iterator;
-import java.util.Map;
+package hyperlink;
+//import java.util.Map;
 
 public class Manager {
 	
+	public static MainWindow mainWindow;
+	public static EditWindow editWindow;
+	
+	public static void process(String button) {
+		switch(button) {
+		case "Add new": editWindow.showWindow();
+						mainWindow.hideWindow();						
+						break;
+		case "Back"   : mainWindow.showWindow();
+						editWindow.hideWindow();
+						break;
+		default: ;
+		}
+	}
+	
 	public static void main(String[] args) {
-		try {
+		ButtonListener buttonListener = new ButtonListener();
+		mainWindow = new MainWindow(buttonListener);
+		editWindow = new EditWindow(buttonListener);
+		
+		mainWindow.showWindow();
+		
+		/*try {
 			Map<Integer, Hyperlink> map = DBHyperlink.selectComplete();
 			for (Map.Entry<Integer, Hyperlink> iterator : map.entrySet())
 			{
@@ -15,6 +35,6 @@ public class Manager {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
