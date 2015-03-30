@@ -1,13 +1,23 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Map;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 public class MainWindow extends JFrame {
     
 	private static final long serialVersionUID = 1L;
-    	
+    
+	public JPanel contentPanel;
+	private ButtonListener buttonListener;
+	private JScrollPane hyperlinkPane;
+	public Map<Integer, Hyperlink> hyperlinkMap;
+	public DefaultTableModel hyperlinkTableModel;
+	public ArrayList<JButton> addButtonList, editButtonList, delButtonList;
+	
 	public MainWindow(ButtonListener buttonListener) {
         super("Main Window");
         
@@ -20,33 +30,30 @@ public class MainWindow extends JFrame {
         	ex.printStackTrace();
         }
         
+        this.buttonListener = buttonListener;
+        
         // setup the widgets
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setLayout(null);
+        contentPanel = new JPanel(null);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
         
-        String[] columnNames = {"Hyperlink", "Created", "Last edited"};
-        
-        ArrayList<String[]> datum = new ArrayList<String[]>();
-        
-        String[] entry;                
-        for (Hyperlink hyperlink : DBHyperlink.select().values()) {
-        	entry = new String[columnNames.length];
-        	entry[0] = hyperlink.value;
-        	entry[1] = hyperlink.created.toString();
-        	entry[2] = hyperlink.lastEdited.toString();
-        	datum.add(entry);
+        String[] hyperlinkColumn = {"Hyperlink", "Created", "Last edited"};  
+	    JTable hyperlinkTable = new JTable();
+	    hyperlinkTableModel = new  DefaultTableModel(0, 0);
+	    hyperlinkTableModel.setColumnIdentifiers(hyperlinkColumn);
+	    hyperlinkTable.setModel(hyperlinkTableModel);
+	    
+        hyperlinkMap = DBHyperlink.select();
+        for (Hyperlink hyperlink : hyperlinkMap.values()) {
+        	hyperlinkTableModel.addRow(new String[] {hyperlink.value,
+        	hyperlink.created.toString(), hyperlink.lastEdited.toString()});
         }
-
-        String[][] data = datum.toArray(new String[datum.size()][3]);        
         
-        JTable table = new JTable(data, columnNames);
-        table.setBounds(10, 40, 420, 220);
-        JScrollPane tablePanel = new JScrollPane(table);
-        tablePanel.setBounds(table.getBounds());
+        hyperlinkTable.setBounds(10, 40, 420, 220);
+        hyperlinkPane = new JScrollPane(hyperlinkTable);
+        hyperlinkPane.setBounds(10, 40, 500, 220);
         TableColumn column = null;
         for (int i = 0; i < 3; i++) {
-            column = table.getColumnModel().getColumn(i);
+            column = hyperlinkTable.getColumnModel().getColumn(i);
             if (i == 0) {
                 column.setPreferredWidth(100);
             } else {
@@ -54,37 +61,17 @@ public class MainWindow extends JFrame {
             }
         }        
         
-        int size = datum.size();
-        for (int i = 1; i <= size; i++) {
-        	ImageIcon show = new ImageIcon("res/show.png");
-            JButton showButton = new JButton(show);
-            showButton.setName("show");
-            showButton.putClientProperty("id", i);
-            showButton.setBorder(null);
-            showButton.setBounds(435, 62 + 20*(i-1), 20, 20);
-            showButton.setFocusPainted(false);
-            showButton.addActionListener(buttonListener);
-            contentPanel.add(showButton);
-            
-            ImageIcon edit = new ImageIcon("res/edit.png");
-            JButton editButton = new JButton(edit);
-            editButton.setName("edit");
-            editButton.putClientProperty("id", i);
-            editButton.setBorder(null);
-            editButton.setBounds(460, 62 + 20*(i-1), 20, 20);
-            editButton.setFocusPainted(false);
-            editButton.addActionListener(buttonListener);
-            contentPanel.add(editButton);
-            
-            ImageIcon del = new ImageIcon("res/del.png");
-            JButton delButton = new JButton(del);
-            delButton.setName("del");
-            delButton.putClientProperty("id", i);
-            delButton.setBorder(null);
-            delButton.setBounds(488, 62 + 20*(i-1), 15, 21);
-            delButton.setFocusPainted(false);
-            delButton.addActionListener(buttonListener);
-            contentPanel.add(delButton);   
+        addButtonList = new ArrayList<JButton>();
+        editButtonList = new ArrayList<JButton>();
+        delButtonList = new ArrayList<JButton>();
+        
+        // setting up the buttons
+        int i = 1;
+        for (int id : hyperlinkMap.keySet()) {
+        	createShowButton(i, id);
+        	createEditButton(i, id);
+        	createDelButton(i, id);
+        	i++;
         }
                         
         JLabel name = new JLabel();
@@ -99,9 +86,9 @@ public class MainWindow extends JFrame {
         addNewButton.setFocusPainted(false);
         addNewButton.addActionListener(buttonListener);
         
-        contentPanel.add(addNewButton);
         contentPanel.add(name);
-        contentPanel.add(tablePanel);
+        contentPanel.add(hyperlinkPane);
+        contentPanel.add(addNewButton);
         
         setContentPane(contentPanel);
         
@@ -117,8 +104,73 @@ public class MainWindow extends JFrame {
         setSize(520, 340);
         setResizable(false);
     }
-    	
+    
+	public void clearTable() {
+		int hyperlinkTableSize = hyperlinkTableModel.getRowCount();
+		for (int j = hyperlinkTableSize-1; j >= 0; j--) {
+			hyperlinkTableModel.removeRow(j);
+		}
+		for (JButton button :  addButtonList)  { contentPanel.remove(button); }
+		for (JButton button : editButtonList)  { contentPanel.remove(button); }
+		for (JButton button :  delButtonList)  { contentPanel.remove(button); }
+	}
+	
+	public void showTable() {
+		for (Hyperlink hyperlink : hyperlinkMap.values()) {
+        	hyperlinkTableModel.addRow(new String[] {hyperlink.value,
+        	hyperlink.created.toString(), hyperlink.lastEdited.toString()});
+        }
+        int i = 1;
+		for (int id : hyperlinkMap.keySet()) {
+        	createShowButton(i, id);
+        	createEditButton(i, id);
+        	createDelButton(i, id);
+        	i++;
+        }
+        setContentPane(contentPanel);
+	}
+	
+	public void createShowButton(int i, int id) {
+		ImageIcon show = new ImageIcon("res/show.png");
+        JButton showButton = new JButton(show);
+        showButton.setName("show");
+        showButton.putClientProperty("id", id);
+        showButton.setBorder(null);
+        showButton.setBounds(435, 62 + 20*(i-1), 20, 20);
+        showButton.setFocusPainted(false);
+        showButton.addActionListener(buttonListener);
+        addButtonList.add(showButton);
+        hyperlinkPane.add(showButton);
+	}
+	
+	public void createEditButton(int i, int id) {
+		ImageIcon edit = new ImageIcon("res/edit.png");
+        JButton editButton = new JButton(edit);
+        editButton.setName("edit");
+        editButton.putClientProperty("id", id);
+        editButton.setBorder(null);
+        editButton.setBounds(460, 62 + 20*(i-1), 20, 20);
+        editButton.setFocusPainted(false);
+        editButton.addActionListener(buttonListener);
+        editButtonList.add(editButton);
+        hyperlinkPane.add(editButton);
+	}
+	
+	public void createDelButton(int i, int id) {
+		ImageIcon del = new ImageIcon("res/del.png");
+        JButton delButton = new JButton(del);
+        delButton.setName("del");
+        delButton.putClientProperty("id", id);
+        delButton.setBorder(null);
+        delButton.setBounds(488, 62 + 20*(i-1), 15, 21);
+        delButton.setFocusPainted(false);
+        delButton.addActionListener(buttonListener);
+        delButtonList.add(delButton);
+        hyperlinkPane.add(delButton); 
+	}
+	
 	public void hideWindow() { setVisible(false); }
+	
 	public void showWindow() { setVisible(true);  }
 	
     public static void main(String[] args) {

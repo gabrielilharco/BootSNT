@@ -1,4 +1,7 @@
+import java.util.Locale;
+
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 
 public class Manager {
@@ -8,27 +11,38 @@ public class Manager {
 	
 	public static void process(JButton button) {
 		String buttonName = button.getName();
+		int hyperlinkId;
+		int response;
 		switch(buttonName) {
-		case "addNew":	mainWindow.hideWindow();
-						editWindow.showWindow();												
+		case "addNew":	editWindow.showWindow();
+						mainWindow.hideWindow();												
 						break;
-		case "back"  :	editWindow.hideWindow();
-						mainWindow.showWindow();
+		case "back"  :	JOptionPane.setDefaultLocale(Locale.ENGLISH);
+						response = JOptionPane.showConfirmDialog(null, "Do you want to go back?", "Confirm",
+		        		JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+						if (response == JOptionPane.YES_OPTION) {							
+							mainWindow.showWindow();
+							editWindow.hideWindow();
+							editWindow.clearAll();
+						}
 						break;
-		case "show"  :  int j = (int) button.getClientProperty("id");
-						Hyperlink hyperlink = DBHyperlink.selectComplete(j);
-						editWindow.hyperlinkField.setText(hyperlink.value);
-						for (Comment comment : hyperlink.comments) {
-							if (comment != null)
-								editWindow.commentTableModel.addRow(new String[] {comment.value});
-						}
-						for (MetaTag metaTag : hyperlink.metaTags) {
-							if (metaTag != null)
-								editWindow.metaTagTableModel.addRow(new String[] {metaTag.value});
-						}
-						mainWindow.hideWindow();
+		case "edit"  :
+		case "show"  :  hyperlinkId = (int) button.getClientProperty("id");
+						Hyperlink hyperlink = DBHyperlink.selectComplete(hyperlinkId);
+						editWindow.addAll(hyperlink);												
 						editWindow.showWindow();
+						mainWindow.hideWindow();						
 						break;
+		case "del"   :  JOptionPane.setDefaultLocale(Locale.ENGLISH);
+						response = JOptionPane.showConfirmDialog(null, "Do you want to delete the hyperlink?", "Confirm",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+						if (response == JOptionPane.YES_OPTION) {							
+							hyperlinkId = (int) button.getClientProperty("id");
+							mainWindow.hyperlinkMap.remove(hyperlinkId);
+							//DBHyperlink.delete(hyperlinkId);
+							mainWindow.clearTable();
+							mainWindow.showTable();
+						}						
 		default: ;
 		}
 	}

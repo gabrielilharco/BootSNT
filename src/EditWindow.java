@@ -11,6 +11,8 @@ public class EditWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	public JTextField hyperlinkField;
+	public JTextField commentField;
+	public JTextField metaTagField;
 	public DefaultTableModel commentTableModel;
 	public DefaultTableModel metaTagTableModel;
 		
@@ -56,7 +58,7 @@ public class EditWindow extends JFrame {
 	    commentLabel.setFont(new Font("Serif", Font.PLAIN, 16));
 	    commentLabel.setBounds(10, 68, 100, 20);
 	    
-	    JTextField commentField = new JTextField();
+	    commentField = new JTextField();
 	    commentField.setBounds(100, 69, 200, 20);
 	    
 	    TextPrompt commentTP = new TextPrompt("Add new comment...", commentField);
@@ -82,7 +84,7 @@ public class EditWindow extends JFrame {
 	    metaTagLabel.setFont(new Font("Serif", Font.PLAIN, 16));
 	    metaTagLabel.setBounds(10, 148, 100, 20);
 	    
-	    JTextField metaTagField = new JTextField();
+	    metaTagField = new JTextField();
 	    metaTagField.setBounds(100, 148, 200, 20);
 	    
 	    TextPrompt metaTagTP = new TextPrompt("Add new meta-tag...", metaTagField);
@@ -124,7 +126,53 @@ public class EditWindow extends JFrame {
         setSize(350, 300);
         setResizable(false);
 	}
-		
+	
+	public void clearCommentRows() {
+		int commentTableSize = commentTableModel.getRowCount();
+		for (int i = 0; i < commentTableSize; i++) {
+			commentTableModel.removeRow(i);
+		}
+		commentField.setText(null);
+	}
+	
+	public void clearMetaTagRows() {
+		int metaTagTableSize = metaTagTableModel.getRowCount();
+		for (int i = 0; i < metaTagTableSize; i++) {
+			metaTagTableModel.removeRow(i);
+		}
+		metaTagField.setText(null);
+	}
+	
+	public void clearHyperlinkText() {
+		hyperlinkField.setText(null);
+	}
+	
+	public void clearAll() {
+		clearCommentRows();
+		clearMetaTagRows();
+		clearHyperlinkText();
+	}
+	
+	public void addCommentRows(Hyperlink hyperlink) {
+		for (Comment comment : hyperlink.comments) {
+			if (comment != null)
+				commentTableModel.addRow(new String[] {comment.value});
+		}
+	}
+	
+	public void addMetaTagRows(Hyperlink hyperlink) {
+		for (MetaTag metaTag : hyperlink.metaTags) {
+			if (metaTag != null)
+				metaTagTableModel.addRow(new String[] {metaTag.value});
+		}
+	}
+	
+	public void addAll(Hyperlink hyperlink) {
+		hyperlinkField.setText(hyperlink.value);
+		addCommentRows(hyperlink);
+		addMetaTagRows(hyperlink);
+	}
+	
 	public void hideWindow() { setVisible(false); }
 	public void showWindow() { setVisible(true);  }
 	
