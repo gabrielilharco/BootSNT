@@ -1,0 +1,17 @@
+CREATE TABLE Hyperlink ( id INT PRIMARY KEY AUTO_INCREMENT,
+						 value VARCHAR(255) NOT NULL,
+						 created DATETIME NOT NULL,
+						 lastEdited DATETIME NOT NULL
+						);
+
+CREATE TABLE MetaTag  ( id INT PRIMARY KEY AUTO_INCREMENT,
+					    hyperlink_id INT NOT NULL,
+				        value VARCHAR(255),
+				        FOREIGN KEY (hyperlink_id) REFERENCES Hyperlink(id) ON DELETE CASCADE
+						);
+
+CREATE TABLE Comment  ( id INT PRIMARY KEY AUTO_INCREMENT,
+					    hyperlink_id INT NOT NULL,
+				        value VARCHAR(255),
+				        FOREIGN KEY (hyperlink_id) REFERENCES Hyperlink(id) ON DELETE CASCADE
+						);
