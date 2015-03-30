@@ -141,6 +141,29 @@ public class DBHyperlink extends DBUtils {
 		}
 	}
 	
+	public static ArrayList<Hyperlink> search (String question) {
+		try{
+			connection = connect();
+			String selectQuery = "SELECT hyp.id hyperlink_id, hyp.value, hyp.created, hyp.lastedited, com.id att_id, com.value att_value, com.hyperlink_id hypid, 1 is_comment FROM Hyperlink hyp "
+					+ "LEFT JOIN Comment AS com ON (com.hyperlink_id = hyp.id) WHERE hyp.value LIKE ? OR com.value LIKE ?" 
+					+ "UNION ALL " 
+					+ "SELECT hyp.id hyperlink_id, hyp.value, hyp.created, hyp.lastedited, mtg.id att_id, mtg.value att_value, mtg.hyperlink_id hypid, 0 is_comment FROM Hyperlink hyp "
+					+ "LEFT JOIN MetaTag mtg ON (mtg.hyperlink_id = hyp.id) WHERE hyp.value LIKE ? OR mtg.value LIKE ?";
+			preparedStatement = connection.prepareStatement(selectQuery);
+			preparedStatement.setString(1, "%" + question + "%");
+			preparedStatement.setString(2, "%" + question + "%");
+			preparedStatement.setString(3, "%" + question + "%");
+			preparedStatement.setString(4, "%" + question + "%");
+			ResultSet rs = preparedStatement.executeQuery();
+			ArrayList<Hyperlink> extractedData = extractData(rs);
+			closeConnection(connection);
+			return extractedData;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	private static ArrayList<Hyperlink> extractData(ResultSet rs) throws SQLException {
          
 		 Map<Integer, Hyperlink> map = new HashMap<Integer, Hyperlink>();
