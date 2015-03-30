@@ -4,11 +4,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class EditWindow extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public JTextField hyperlinkField;
+	public DefaultTableModel commentTableModel;
+	public DefaultTableModel metaTagTableModel;
+		
 	public EditWindow(ButtonListener buttonListener) {
 		super("Edit Window");
 		
@@ -37,7 +42,7 @@ public class EditWindow extends JFrame {
 	    hyperlinkLabel.setFont(new Font("Serif", Font.PLAIN, 16));
 	    hyperlinkLabel.setBounds(10, 42, 100, 20);
 	    
-	    JTextField hyperlinkField = new JTextField();
+	    hyperlinkField = new JTextField();
 	    hyperlinkField.setBounds(100, 42, 200, 20);
 	    
 	    TextPrompt hyperlinkTP = new TextPrompt("Add new hyperlink...", hyperlinkField);
@@ -52,47 +57,55 @@ public class EditWindow extends JFrame {
 	    commentLabel.setBounds(10, 68, 100, 20);
 	    
 	    JTextField commentField = new JTextField();
-	    commentField.setBounds(100, 68, 200, 20);
+	    commentField.setBounds(100, 69, 200, 20);
 	    
 	    TextPrompt commentTP = new TextPrompt("Add new comment...", commentField);
 	    commentTP.changeAlpha(0.8f);
 	    
-	    String[] columnNames = {"Names"};
-	    Object[][] data = new Object[20][1];
-	    JTable commentTable = new JTable(data, columnNames);
+	    String[] commentColumn = {"Comments"};    
+	    JTable commentTable = new JTable();
+	    commentTableModel = new  DefaultTableModel(0, 0);
+	    commentTableModel.setColumnIdentifiers(commentColumn);
+	    commentTable.setModel(commentTableModel);
+	    
 	    commentTable.setTableHeader(null);
-	    commentTable.setBounds(100, 92, 200, 40);
+	    commentTable.setBounds(100, 93, 200, 42);
         JScrollPane commentPanel = new JScrollPane(commentTable);
         commentPanel.setBounds(commentTable.getBounds());
         
         contentPanel.add(commentPanel);	    
 	    contentPanel.add(commentLabel);
-	    contentPanel.add(commentField);
+	    contentPanel.add(commentField);	    
+
+		JLabel metaTagLabel = new JLabel();
+	    metaTagLabel.setText("Meta-tags");
+	    metaTagLabel.setFont(new Font("Serif", Font.PLAIN, 16));
+	    metaTagLabel.setBounds(10, 148, 100, 20);
 	    
-	    JLabel metatagLabel = new JLabel();
-	    metatagLabel.setText("Meta-tags");
-	    metatagLabel.setFont(new Font("Serif", Font.PLAIN, 16));
-	    metatagLabel.setBounds(10, 148, 100, 20);
+	    JTextField metaTagField = new JTextField();
+	    metaTagField.setBounds(100, 148, 200, 20);
 	    
-	    JTextField metatagField = new JTextField();
-	    metatagField.setBounds(100, 148, 200, 20);
+	    TextPrompt metaTagTP = new TextPrompt("Add new meta-tag...", metaTagField);
+	    metaTagTP.changeAlpha(0.8f);
 	    
-	    TextPrompt metatagTP = new TextPrompt("Add new meta-tag...", metatagField);
-	    metatagTP.changeAlpha(0.8f);
+	    String[] metaTagColumn = {"metaTags"};
+	    JTable metaTagTable = new JTable();
+	    metaTagTableModel = new  DefaultTableModel(0, 0);
+	    metaTagTableModel.setColumnIdentifiers(metaTagColumn);
+	    metaTagTable.setModel(metaTagTableModel);
 	    
-	    Object[][] data2 = new Object[5][1];
-	    JTable metatagTable = new JTable(data2, columnNames);	    
-	    metatagTable.setTableHeader(null);
-	    metatagTable.setBounds(100, 172, 200, 40);
-        JScrollPane metatagPanel = new JScrollPane(metatagTable);
-        metatagPanel.setBounds(metatagTable.getBounds());
+	    metaTagTable.setTableHeader(null);
+	    metaTagTable.setBounds(100, 172, 200, 42);
+        JScrollPane metaTagPanel = new JScrollPane(metaTagTable);
+        metaTagPanel.setBounds(metaTagTable.getBounds());
         
-        contentPanel.add(metatagPanel);	    
-	    contentPanel.add(metatagLabel);
-	    contentPanel.add(metatagField);
+        contentPanel.add(metaTagPanel);	    
+	    contentPanel.add(metaTagLabel);
+	    contentPanel.add(metaTagField);
 	    
 	    JButton backButton = new JButton();
-	    backButton.setText("Back");        
+	    backButton.setName("back");
+	    backButton.setText("Back");
         backButton.setBounds(230, 230, 100, 30);
         backButton.setFocusPainted(false);
         backButton.addActionListener(buttonListener);

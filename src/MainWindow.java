@@ -38,18 +38,7 @@ public class MainWindow extends JFrame {
         	datum.add(entry);
         }
 
-        String[][] data = datum.toArray(new String[datum.size()][3]);
-        
-        /*String[][] data = new String[datum.size()][columnNames.length];
-        
-        int j = 0;
-        for (String[] hyperlinkData : datum) {
-        	data[j][0] = hyperlinkData[0];
-        	data[j][1] = hyperlinkData[1];
-        	data[j][2] = hyperlinkData[2];
-        	j++;
-        }*/
-        
+        String[][] data = datum.toArray(new String[datum.size()][3]);        
         
         JTable table = new JTable(data, columnNames);
         table.setBounds(10, 40, 420, 220);
@@ -65,33 +54,46 @@ public class MainWindow extends JFrame {
             }
         }        
         
-        ImageIcon add = new ImageIcon("res/add.png");
-        JButton addButton = new JButton(add);
-        addButton.setBorder(null);
-        addButton.setBounds(435, 62, 20, 20);
-        addButton.setFocusPainted(false);
-        contentPanel.add(addButton);
-        
-        ImageIcon edit = new ImageIcon("res/edit.png");
-        JButton editButton = new JButton(edit);
-        editButton.setBorder(null);
-        editButton.setBounds(460, 62, 20, 20);
-        editButton.setFocusPainted(false);
-        contentPanel.add(editButton);
-        
-        ImageIcon del = new ImageIcon("res/del.png");
-        JButton delButton = new JButton(del);
-        delButton.setBorder(null);
-        delButton.setBounds(488, 62, 15, 21);
-        delButton.setFocusPainted(false);
-        contentPanel.add(delButton);   
-                
+        int size = datum.size();
+        for (int i = 1; i <= size; i++) {
+        	ImageIcon show = new ImageIcon("res/show.png");
+            JButton showButton = new JButton(show);
+            showButton.setName("show");
+            showButton.putClientProperty("id", i);
+            showButton.setBorder(null);
+            showButton.setBounds(435, 62 + 20*(i-1), 20, 20);
+            showButton.setFocusPainted(false);
+            showButton.addActionListener(buttonListener);
+            contentPanel.add(showButton);
+            
+            ImageIcon edit = new ImageIcon("res/edit.png");
+            JButton editButton = new JButton(edit);
+            editButton.setName("edit");
+            editButton.putClientProperty("id", i);
+            editButton.setBorder(null);
+            editButton.setBounds(460, 62 + 20*(i-1), 20, 20);
+            editButton.setFocusPainted(false);
+            editButton.addActionListener(buttonListener);
+            contentPanel.add(editButton);
+            
+            ImageIcon del = new ImageIcon("res/del.png");
+            JButton delButton = new JButton(del);
+            delButton.setName("del");
+            delButton.putClientProperty("id", i);
+            delButton.setBorder(null);
+            delButton.setBounds(488, 62 + 20*(i-1), 15, 21);
+            delButton.setFocusPainted(false);
+            delButton.addActionListener(buttonListener);
+            contentPanel.add(delButton);   
+        }
+                        
         JLabel name = new JLabel();
         name.setText("Boot SNT");
         name.setFont(new Font("Serif", Font.PLAIN, 20));
         name.setBounds(10, 8, 100, 20);
         
         JButton addNewButton = new JButton();
+        addNewButton.setName("addNew");
         addNewButton.setText("Add new");        
         addNewButton.setBounds(390, 270, 100, 30);
         addNewButton.setFocusPainted(false);

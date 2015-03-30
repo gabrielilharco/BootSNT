@@ -84,11 +84,11 @@ public class DBHyperlink extends DBUtils {
 	public static ArrayList<Hyperlink> selectComplete () {
 		try{
 			connection = connect();
-			String selectQuery = "SELECT hyp.value, hyp.created, hyp.lastedited, com.id comment_id, com.value, com.hyperlink_id, 1 is_comment FROM Hyperlink hyp "
-					+ "JOIN Comment com ON (com.hyperlink_id = hyp.id) " 
+			String selectQuery = "SELECT hyp.id hyperlink_id, hyp.value, hyp.created, hyp.lastedited, com.id att_id, com.value att_value, com.hyperlink_id hypid, 1 is_comment FROM Hyperlink hyp "
+					+ "LEFT JOIN Comment AS com ON (com.hyperlink_id = hyp.id) " 
 					+ "UNION ALL " 
-					+ "SELECT hyp.value, hyp.created, hyp.lastedited, mtg.id metatag_id, mtg.value, mtg.hyperlink_id, 0 is_comment FROM Hyperlink hyp "
-					+ "JOIN MetaTag mtg ON (mtg.hyperlink_id = hyp.id)";
+					+ "SELECT hyp.id hyperlink_id, hyp.value, hyp.created, hyp.lastedited, mtg.id att_id, mtg.value att_value, mtg.hyperlink_id hypid, 0 is_comment FROM Hyperlink hyp "
+					+ "LEFT JOIN MetaTag mtg ON (mtg.hyperlink_id = hyp.id)";
 			preparedStatement = connection.prepareStatement(selectQuery);
 			ResultSet rs = preparedStatement.executeQuery();
 			ArrayList<Hyperlink> hyperlinks = extractData(rs);
@@ -120,15 +120,19 @@ public class DBHyperlink extends DBUtils {
 	public static Hyperlink selectComplete (int id) {
 		try{
 			connection = connect();
-			String selectQuery = "SELECT hyp.*, com.id comment_id, com.value, com.hyperlink_id hyperlink_id, 1 is_comment FROM Hyperlink hyp WHERE id = ?"
-					+ "JOIN Comment com ON (com.hyperlink_id = hyp.id)" 
-					+ "UNION ALL" 
-					+ "SELECT hyp.*, mtg.id metatag_id, mtg.value, mtg.hyperlink_id hyperlink_id, 0 is_comment FROM Hyperlink hyp"
-					+ "JOIN MetaTag mtg ON (mtg.hyperlink_id = hyp.id)";
+			String selectQuery = "SELECT hyp.id hyperlink_id, hyp.value, hyp.created, hyp.lastedited, com.id att_id, com.value att_value, com.hyperlink_id hypid, 1 is_comment FROM Hyperlink hyp "
+					+ "LEFT JOIN Comment AS com ON (com.hyperlink_id = hyp.id) WHERE hyp.id = ? " 
+					+ "UNION ALL " 
+					+ "SELECT hyp.id hyperlink_id, hyp.value, hyp.created, hyp.lastedited, mtg.id att_id, mtg.value att_value, mtg.hyperlink_id hypid, 0 is_comment FROM Hyperlink hyp "
+					+ "LEFT JOIN MetaTag mtg ON (mtg.hyperlink_id = hyp.id) WHERE hyp.id = ?";
 			preparedStatement = connection.prepareStatement(selectQuery);
-			preparedStatement.setInt(1,id);
+			preparedStatement.setInt(1, id);
+			preparedStatement.setInt(2, id);
 			ResultSet rs = preparedStatement.executeQuery();
-			Hyperlink hyperlink = extractData(rs).get(0);
+			ArrayList<Hyperlink> extractedData = extractData(rs);
+			Hyperlink hyperlink = null;
+			if (extractedData != null)
+				hyperlink = extractedData.get(0);
 			closeConnection(connection);
 			return hyperlink;
 		} catch (Exception e) {
@@ -142,10 +146,10 @@ public class DBHyperlink extends DBUtils {
 		 Map<Integer, Hyperlink> map = new HashMap<Integer, Hyperlink>();
 
 	     while (rs.next()) {
-	    	 
+	
 	         int id = rs.getInt("hyperlink_id");
 	         Hyperlink hyperlink = map.get(id);
-	         if(hyperlink == null){
+	         if (hyperlink == null) {
 	             hyperlink = new Hyperlink(id, rs.getString("value"), rs.getTimestamp("created"), rs.getTimestamp("lastEdited"));
 	             map.put(id, hyperlink);
 	         }
@@ -153,14 +157,22 @@ public class DBHyperlink extends DBUtils {
 	         int type = rs.getInt("is_comment");
 	         
 	         if (type == 1) { //comment
-	             Comment comment = new Comment (rs.getInt("comment_id"), rs.getInt("hyperlink_id"), rs.getString("value"));
-	        	 hyperlink.comments.add(comment);
+	        	 if (rs.getInt("att_id") != 0) {
+		             Comment comment = new Comment (rs.getInt("att_id"), rs.getInt("hyperlink_id"), rs.getString("att_value"));
+		        	 hyperlink.comments.add(comment);
+		        	 map.put(id, hyperlink);
+	        	 }
 	         } 
-	         else if(type == 0) { // meta-tag
-	        	 MetaTag metaTag = new MetaTag (rs.getInt("metatag_id"), rs.getInt("hyperlink_id"), rs.getString("value"));
-	        	 hyperlink.metaTags.add(metaTag);
+	         else if (type == 0) { // meta-tag
+	        	 if (rs.getInt("att_id") != 0) {
+		        	 MetaTag metaTag = new MetaTag (rs.getInt("att_id"), rs.getInt("hyperlink_id"), rs.getString("att_value"));
+		        	 hyperlink.metaTags.add(metaTag);
+		        	 map.put(id, hyperlink);
+	        	 }
 	         }
+	         
 	     }
+	     
 	     return new ArrayList<Hyperlink>(map.values());
 	}
 }
