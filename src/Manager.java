@@ -16,7 +16,7 @@ public class Manager {
 						mainWindow.showWindow();
 						break;
 		case "show"  :  int j = (int) button.getClientProperty("id");
-						Hyperlink hyperlink = DBHyperlink.selectComplete(j);
+						Hyperlink hyperlink = DBHyperlink.search("second").get(0);
 						editWindow.hyperlinkField.setText(hyperlink.value);
 						for (Comment comment : hyperlink.comments) {
 							if (comment != null)
