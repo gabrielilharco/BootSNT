@@ -313,13 +313,13 @@ public abstract class DBHyperlink extends DBUtils {
 			preparedStatement = connection.prepareStatement(selectQuery);
 			preparedStatement.setInt(1, id);
 			preparedStatement.setInt(2, id);
-			ResultSet rs = preparedStatement.executeQuery();
-			
-			// end connection with the database
-			closeConnection(connection);
+			ResultSet rs = preparedStatement.executeQuery();			
 			
 			// extract data from the resultSet
 			ArrayList<Hyperlink> extractedData = extractData(rs);
+			
+			// end connection with the database
+			closeConnection(connection);
 			
 			// if we got something
 			if (extractedData != null)
